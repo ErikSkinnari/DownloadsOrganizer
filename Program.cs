@@ -43,7 +43,7 @@ namespace DownloadsOrganizer
                 { "Misc", Path.Combine(folderToOrganize, "Misc") }
             };
 
-            string[] exeExtentions = new string[] { "exe", "jar" };
+            string[] exeExtentions = new string[] { "exe", "jar", "msi" };
             string[] ebookExtentions = new string[] { "epub", "mobi" };
             string[] soundExtentions = new string[] { "wav", "mp3", "ogg" };
             string[] documentExtentions = new string[] { "doc", "docx", "pdf" };
@@ -65,14 +65,10 @@ namespace DownloadsOrganizer
             foreach (string file in files)
             {
                 string filename = file[(folderToOrganize.Length + 1)..];
-                Console.WriteLine(filename);
-
                 string fileExtention = file[(file.LastIndexOf('.') + 1)..];
-
-                Console.WriteLine(fileExtention);
+                string filePath = Path.Combine(folderToOrganize, filename);
 
                 string targetDirectory;
-
                 if (exeExtentions.Any(fileExtention.Contains)) targetDirectory = foldersToCreate["ExecutablesPath"];
                 else if (ebookExtentions.Any(fileExtention.Contains)) targetDirectory = foldersToCreate["EbooksPath"];
                 else if (soundExtentions.Any(fileExtention.Contains)) targetDirectory = foldersToCreate["SoundsPath"];
@@ -82,9 +78,10 @@ namespace DownloadsOrganizer
                 else if (codeExtentions.Any(fileExtention.Contains)) targetDirectory = foldersToCreate["CodePath"];
                 else if (textExtentions.Any(fileExtention.Contains)) targetDirectory = foldersToCreate["TextPath"];
                 else targetDirectory = foldersToCreate["Misc"];
-            }
 
-            Console.ReadLine();
+                string targetPath = Path.Combine(targetDirectory, filename);
+                File.Move(filePath, targetPath);
+            }
         }
     }
 }

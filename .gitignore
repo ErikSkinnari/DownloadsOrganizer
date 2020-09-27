@@ -1,3 +1,2 @@
-./Downloads
-./bin
-./obj
+bin/
+obj/
