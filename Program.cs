@@ -11,6 +11,7 @@ namespace DownloadsOrganizer
         static void Main(string[] args)
         {
             Console.WriteLine("Starting the organizer...");
+            DateTime startTime = DateTime.Now;
 
             string folderToOrganize = String.Empty;
 
@@ -27,8 +28,6 @@ namespace DownloadsOrganizer
                 }
             }
             else folderToOrganize = new KnownFolder(KnownFolderType.Downloads).Path;
-
-            Console.WriteLine(folderToOrganize);
 
             Dictionary<string, string> foldersToCreate = new Dictionary<string, string>
             {
@@ -82,6 +81,10 @@ namespace DownloadsOrganizer
                 string targetPath = Path.Combine(targetDirectory, filename);
                 File.Move(filePath, targetPath);
             }
+
+            TimeSpan elapsedTime = DateTime.Now - startTime;
+
+            Console.WriteLine($"The organizer has finished the cleaning.. Elapsed time is {elapsedTime.Seconds} seconds");
         }
     }
 }
