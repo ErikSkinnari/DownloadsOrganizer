@@ -82,9 +82,17 @@ namespace DownloadsOrganizer
                 File.Move(filePath, targetPath);
             }
 
+            foreach (var folder in Directory.EnumerateDirectories(folderToOrganize))
+            {
+                if (Directory.EnumerateDirectories(folder).Count() < 1 && Directory.EnumerateFiles(folder).Count() < 1) 
+                {
+                    Directory.Delete(Path.Combine(folderToOrganize, folder));
+                }
+            }
+
             TimeSpan elapsedTime = DateTime.Now - startTime;
 
-            Console.WriteLine($"The organizer has finished the cleaning.. Elapsed time is {elapsedTime.Seconds} seconds");
+            Console.WriteLine($"The organizer has finished the cleaning in {elapsedTime.Seconds} seconds..");
         }
     }
 }
