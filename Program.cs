@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Newtonsoft.Json;
 using Syroot.Windows.IO;
 
-namespace DownloadsOrganizer
+namespace DirectoryOrganizer
 {
     class Program
     {
@@ -15,32 +16,43 @@ namespace DownloadsOrganizer
 
             string folderToOrganize = String.Empty;
 
+            string sourceDirectory = String.Empty;
+            Configuration config;
+
             if (args.Length > 0)
             {
                 try
                 {
-                    folderToOrganize = args[0];
+                    string configPath = args[0];
+                    using (StreamReader reader = new StreamReader(configPath))
+                    {
+                        var json = reader.ReadToEnd();
+                        config = JsonConvert.DeserializeObject<Configuration>(json);
+                    }
                 }
                 catch (System.Exception)
                 {
-                    Console.WriteLine("Given path is not valid. Closing Application");
+                    Console.WriteLine("Given configuration file is not valid. Closing Application");
                     Environment.Exit(-1);
                 }
             }
-            else folderToOrganize = new KnownFolder(KnownFolderType.Downloads).Path;
-
-            Dictionary<string, string> foldersToCreate = new Dictionary<string, string>
+            else 
             {
-                { "ExecutablesPath", Path.Combine(folderToOrganize, "Executables") },
-                { "EbooksPath", Path.Combine(folderToOrganize, "E-books") },
-                { "SoundsPath", Path.Combine(folderToOrganize, "Sounds") },
-                { "DocumentsPath", Path.Combine(folderToOrganize, "Documents") },
-                { "ImagesPath", Path.Combine(folderToOrganize, "Images") },
-                { "CompressedPath", Path.Combine(folderToOrganize, "Compressed") },
-                { "CodePath", Path.Combine(folderToOrganize, "Code") },
-                { "TextPath", Path.Combine(folderToOrganize, "TextFiles") },
-                { "Misc", Path.Combine(folderToOrganize, "Misc") }
-            };
+                Console.WriteLine("To use this application a configuration file needs to be provided.");
+            }
+
+            // Dictionary<string, string> foldersToCreate = new Dictionary<string, string>
+            // {
+            //     { "ExecutablesPath", Path.Combine(folderToOrganize, "Executables") },
+            //     { "EbooksPath", Path.Combine(folderToOrganize, "E-books") },
+            //     { "SoundsPath", Path.Combine(folderToOrganize, "Sounds") },
+            //     { "DocumentsPath", Path.Combine(folderToOrganize, "Documents") },
+            //     { "ImagesPath", Path.Combine(folderToOrganize, "Images") },
+            //     { "CompressedPath", Path.Combine(folderToOrganize, "Compressed") },
+            //     { "CodePath", Path.Combine(folderToOrganize, "Code") },
+            //     { "TextPath", Path.Combine(folderToOrganize, "TextFiles") },
+            //     { "Misc", Path.Combine(folderToOrganize, "Misc") }
+            // };
 
             string[] exeExtentions = new string[] { "exe", "jar", "msi" };
             string[] ebookExtentions = new string[] { "epub", "mobi" };
