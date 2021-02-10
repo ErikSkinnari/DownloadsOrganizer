@@ -1,63 +1,34 @@
 {
-    "sourcedirectory": "",
-    "targetdirectories": [
-        {
-            "name": "Executables",
-            "fileextensions": [
-                "exe",
-                "msi",
-                "jar"
-            ]
-        },
-        {
-            "name": "Ebooks",
-            "fileextensions": [
-                "epub",
-                "mobi"
-            ]
-        },
-        {
-            "name": "Sounds",
-            "fileextensions": [
-                "mp3",
-                "ogg",
-                "wav"
-            ]
-        },
-        {
-            "name": "Documents",
-            "fileextensions": [
-                "pdf",
-                "doc",
-                "docx",
-                "txt",
-                "csv"
-            ]
-        },
-        {
-            "name": "Images",
-            "fileextensions": [
-                "png",
-                "jpg",
-                "svg"
-            ]
-        },
-        {
-            "name": "Compressed",
-            "fileextensions": [
-                "rar",
-                "zip"
-            ]
-        },
-        {
-            "name": "Code",
-            "fileextensions": [
-                "cs",
-                "js",
-                "html",
-                "css",
-                "py"
-            ]
-        }        
-    ]
+  "sourcedirectory": "",
+  "miscdirectoryname": "Misc",
+  "targetdirectories": [
+    {
+      "foldername": "Executables",
+      "fileextensions": ["exe", "msi", "jar"]
+    },
+    {
+      "foldername": "Ebooks",
+      "fileextensions": ["epub", "mobi"]
+    },
+    {
+      "foldername": "Sounds",
+      "fileextensions": ["mp3", "ogg", "wav"]
+    },
+    {
+      "foldername": "Documents",
+      "fileextensions": ["pdf", "doc", "docx", "txt", "csv"]
+    },
+    {
+      "foldername": "Images",
+      "fileextensions": ["png", "jpg", "svg"]
+    },
+    {
+      "foldername": "Compressed",
+      "fileextensions": ["rar", "zip"]
+    },
+    {
+      "foldername": "Code",
+      "fileextensions": ["cs", "js", "html", "css", "py"]
+    }
+  ]
 }

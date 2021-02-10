@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 
 namespace DirectoryOrganizer
@@ -7,16 +6,12 @@ namespace DirectoryOrganizer
     {
         public string SourceDirectory { get; set; }
         public List<TargetDirectory> TargetDirectories { get; set; }
+        public string MiscDirectoryName { get; set; }
     }
-
 
     public class TargetDirectory
     {
-
-        [JsonProperty("name")]
-        public string Name { get; set; }
-
-        [JsonProperty("fileextensions")]
-        public IList<string> FileExtensions { get; set; }
+        public string FolderName { get; set; }
+        public List<string> FileExtensions { get; set; }
     }
 }

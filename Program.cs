@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Newtonsoft.Json;
+using System.Text.Json;
 using Syroot.Windows.IO;
 
 namespace DirectoryOrganizer
@@ -17,94 +17,107 @@ namespace DirectoryOrganizer
             string folderToOrganize = String.Empty;
 
             string sourceDirectory = String.Empty;
-            Configuration config;
+            Configuration config = null;
 
             if (args.Length > 0)
             {
                 try
                 {
                     string configPath = args[0];
-                    using (StreamReader reader = new StreamReader(configPath))
+                    Console.WriteLine(configPath);
+                    using StreamReader reader = new(configPath);
+                    var json = reader.ReadToEnd();
+                    Console.WriteLine(json);
+
+                    config = JsonSerializer.Deserialize<Configuration>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                    Console.WriteLine("Source Directory: " + config.SourceDirectory);
+                    Console.WriteLine("Target Directories:");
+
+                    config.TargetDirectories.ForEach(td =>
                     {
-                        var json = reader.ReadToEnd();
-                        config = JsonConvert.DeserializeObject<Configuration>(json);
+                        string fileExtensions = String.Empty;
+                        td.FileExtensions.ForEach(fe => fileExtensions += fe + ", ");
+                        fileExtensions = fileExtensions.Length > 0 ? fileExtensions[..^2] : " ";
+
+                        Console.WriteLine("\t\t" + td.FolderName + ": (" + fileExtensions + ")");
+                    });
+
+                    Console.WriteLine(config.SourceDirectory);
+                    if (String.IsNullOrEmpty(config.SourceDirectory))
+                    {
+                        KnownFolder downloadsFolderPath = new(KnownFolderType.Downloads);
+                        sourceDirectory = downloadsFolderPath.Path;
+                        Console.WriteLine("Source path not provided. Automaticly set to: " + sourceDirectory);
+                    }
+                    else
+                    {
+                        sourceDirectory = config.SourceDirectory;
+                        Console.WriteLine("Source dir set to: " + sourceDirectory);
                     }
                 }
-                catch (System.Exception)
+                catch (Exception)
                 {
-                    Console.WriteLine("Given configuration file is not valid. Closing Application");
+                    Console.WriteLine("Something went wrong. Maybe the given configuration file is not valid. Closing Application..");
                     Environment.Exit(-1);
                 }
             }
             else 
             {
                 Console.WriteLine("To use this application a configuration file needs to be provided.");
+                Environment.Exit(-1);
             }
 
-            // Dictionary<string, string> foldersToCreate = new Dictionary<string, string>
-            // {
-            //     { "ExecutablesPath", Path.Combine(folderToOrganize, "Executables") },
-            //     { "EbooksPath", Path.Combine(folderToOrganize, "E-books") },
-            //     { "SoundsPath", Path.Combine(folderToOrganize, "Sounds") },
-            //     { "DocumentsPath", Path.Combine(folderToOrganize, "Documents") },
-            //     { "ImagesPath", Path.Combine(folderToOrganize, "Images") },
-            //     { "CompressedPath", Path.Combine(folderToOrganize, "Compressed") },
-            //     { "CodePath", Path.Combine(folderToOrganize, "Code") },
-            //     { "TextPath", Path.Combine(folderToOrganize, "TextFiles") },
-            //     { "Misc", Path.Combine(folderToOrganize, "Misc") }
-            // };
-
-            string[] exeExtentions = new string[] { "exe", "jar", "msi" };
-            string[] ebookExtentions = new string[] { "epub", "mobi" };
-            string[] soundExtentions = new string[] { "wav", "mp3", "ogg" };
-            string[] documentExtentions = new string[] { "doc", "docx", "pdf" };
-            string[] imageExtentions = new string[] { "svg", "img", "png" };
-            string[] archiveExtentions = new string[] { "rar", "zip" };
-            string[] codeExtentions = new string[] { "js", "cs", "html", "css", "py" };
-            string[] textExtentions = new string[] { "txt", "csv" };
-
-            foreach (KeyValuePair<string, string> folderName in foldersToCreate)
+            foreach (var targetDirectory in config.TargetDirectories)
             {
-                if (!Directory.Exists(folderName.Value))
+                string directoryPath = Path.Combine(sourceDirectory, targetDirectory.FolderName);
+                if (!Directory.Exists(directoryPath))
                 {
-                    Directory.CreateDirectory(folderName.Value);
+                    Directory.CreateDirectory(directoryPath);
                 }
             }
 
-            var files = Directory.EnumerateFiles(folderToOrganize);
+            // Misc folder, where all unknown filetypes goes.
+            string miscDirectoryPath = Path.Combine(sourceDirectory, config.MiscDirectoryName);
+            if (!Directory.Exists(miscDirectoryPath))
+            {
+                Directory.CreateDirectory(miscDirectoryPath);
+            }
+
+
+            var files = Directory.EnumerateFiles(sourceDirectory);
 
             foreach (string file in files)
             {
-                string filename = file[(folderToOrganize.Length + 1)..];
+                string fileName = file[(sourceDirectory.Length + 1)..];
+                Console.WriteLine(fileName);
                 string fileExtention = file[(file.LastIndexOf('.') + 1)..];
-                string filePath = Path.Combine(folderToOrganize, filename);
+                Console.WriteLine(fileExtention);
+                string filePath = Path.Combine(sourceDirectory, fileName);
+                Console.WriteLine(filePath);
 
-                string targetDirectory;
-                if (exeExtentions.Any(fileExtention.Contains)) targetDirectory = foldersToCreate["ExecutablesPath"];
-                else if (ebookExtentions.Any(fileExtention.Contains)) targetDirectory = foldersToCreate["EbooksPath"];
-                else if (soundExtentions.Any(fileExtention.Contains)) targetDirectory = foldersToCreate["SoundsPath"];
-                else if (documentExtentions.Any(fileExtention.Contains)) targetDirectory = foldersToCreate["DocumentsPath"];
-                else if (imageExtentions.Any(fileExtention.Contains)) targetDirectory = foldersToCreate["ImagesPath"];
-                else if (archiveExtentions.Any(fileExtention.Contains)) targetDirectory = foldersToCreate["CompressedPath"];
-                else if (codeExtentions.Any(fileExtention.Contains)) targetDirectory = foldersToCreate["CodePath"];
-                else if (textExtentions.Any(fileExtention.Contains)) targetDirectory = foldersToCreate["TextPath"];
-                else targetDirectory = foldersToCreate["Misc"];
+                string targetDirectoryName;
 
-                string targetPath = Path.Combine(targetDirectory, filename);
+                targetDirectoryName = config.TargetDirectories.Where(td => td.FileExtensions.Contains(fileExtention)).FirstOrDefault()?.FolderName;
+                targetDirectoryName = (String.IsNullOrEmpty(targetDirectoryName)) ? config.MiscDirectoryName : targetDirectoryName;
+
+                string targetPath = Path.Combine(sourceDirectory, targetDirectoryName, fileName);
+                Console.WriteLine("Moving: " + filePath + " => to: " + targetPath);
                 File.Move(filePath, targetPath);
             }
 
-            foreach (var folder in Directory.EnumerateDirectories(folderToOrganize))
+            foreach (var folder in Directory.EnumerateDirectories(sourceDirectory))
             {
-                if (Directory.EnumerateDirectories(folder).Count() < 1 && Directory.EnumerateFiles(folder).Count() < 1) 
+                if (!Directory.EnumerateDirectories(folder).Any() && !Directory.EnumerateFiles(folder).Any())
                 {
+                    Console.WriteLine("Deleting folder: " + Path.Combine(sourceDirectory, folder));
                     Directory.Delete(Path.Combine(folderToOrganize, folder));
                 }
             }
 
             TimeSpan elapsedTime = DateTime.Now - startTime;
 
-            Console.WriteLine($"The organizer has finished the cleaning in {elapsedTime.Seconds} seconds..");
+            Console.WriteLine($"The organizer has finished the cleaning in {elapsedTime.Milliseconds} milliseconds..");
         }
     }
 }
