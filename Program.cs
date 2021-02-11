@@ -84,7 +84,6 @@ namespace DirectoryOrganizer
                 Directory.CreateDirectory(miscDirectoryPath);
             }
 
-
             var files = Directory.EnumerateFiles(sourceDirectory);
 
             foreach (string file in files)
@@ -98,7 +97,7 @@ namespace DirectoryOrganizer
 
                 string targetDirectoryName;
 
-                targetDirectoryName = config.TargetDirectories.Where(td => td.FileExtensions.Contains(fileExtention)).FirstOrDefault()?.FolderName;
+                targetDirectoryName = config.TargetDirectories.Where(td => td.FileExtensions.Contains(fileExtention.ToLower())).FirstOrDefault()?.FolderName;
                 targetDirectoryName = (String.IsNullOrEmpty(targetDirectoryName)) ? config.MiscDirectoryName : targetDirectoryName;
 
                 string targetPath = Path.Combine(sourceDirectory, targetDirectoryName, fileName);

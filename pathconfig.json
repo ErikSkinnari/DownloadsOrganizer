@@ -20,15 +20,15 @@
     },
     {
       "foldername": "Images",
-      "fileextensions": ["png", "jpg", "svg"]
+      "fileextensions": ["png", "jpg", "jpeg", "svg"]
     },
     {
       "foldername": "Compressed",
-      "fileextensions": ["rar", "zip"]
+      "fileextensions": ["rar", "zip", "iso"]
     },
     {
       "foldername": "Code",
-      "fileextensions": ["cs", "js", "html", "css", "py"]
+      "fileextensions": ["cs", "js", "html", "css", "py", "sql"]
     }
   ]
 }
